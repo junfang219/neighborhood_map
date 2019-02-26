@@ -31,3 +31,44 @@
     transform: rotate(360deg);
   }
 }
+
+#map {
+  display: inline-block;
+  width: 70%;
+  height: 100vh;
+  vertical-align: top;
+}
+
+html, body {
+  height: 100%;
+  margin:0;
+  padding:0;
+}
+
+.list-locations {
+  display: inline-block;
+  width: 30%;
+  height: 100vh;
+  vertical-align: top;
+  text-align:left;
+  background-color: #ADB3B8;
+}
+
+.search-locations {
+  width: 60%;
+  margin-left: 10%;
+}
+
+.search-filter {
+  width: 40px;
+}
+.location-list-item {
+  list-style-type: none;
+}
+
+#SU {
+  font-family:sans-serif;
+  margin-left: 10%;
+  color: #D44500;
+  font-size: 20px;
+}
