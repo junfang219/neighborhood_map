@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import escapeRegExp from 'escape-string-regexp';
+import { slide as Menu } from 'react-burger-menu'
 
 class LocationList extends Component {
   state = {
@@ -12,37 +13,49 @@ class LocationList extends Component {
 
 
   render() {
-    const {locations,showMarkers} = this.props
+    const {map, locations,mapMarkers, createMarkers, hideMarkers, infowindow, populateInfoWindow, addBounce, removeBounce} = this.props
     const {query} = this.state
 
-    let filteredlocations
+    let filteredList
+    let filteredMarkers
+
     if (query) {
       const match = new RegExp(escapeRegExp(query), 'i')
-      filteredlocations = locations.filter((location) => match.test(location.title))
+      filteredList = locations.filter((location) => match.test(location.title))
+      filteredMarkers = mapMarkers.filter((marker) => match.test(marker.title))
     } else {
-      filteredlocations = locations
+      filteredList = locations
+      filteredMarkers = mapMarkers
+
     }
-console.log(filteredlocations);
+    //console.log(filteredList)
     return (
-      <div className = 'list-locations'>
-        <p id='SU'>Syracuse University</p>
-        <form className='search-form' onSubmit={(e) => {showMarkers(filteredlocations);e.preventDefault()}}>
+      // hambuger menu
+        <Menu isOpen={ true }>
+          <div className = 'list-locations'>
+            <p id='SU'>Syracuse University</p>
 
-          <input className='search-locations' type='text' placeholder='Search locations' value={query} onChange={(event) => this.updateQuery(event.target.value)}/>
+            <form className='search-form' tabIndex='0' onSubmit = {e => { hideMarkers(mapMarkers); createMarkers(filteredList, infowindow, map); e.preventDefault();}}>
+              <input className='search-locations' aria-label='search' type='text' placeholder='Search locations' value={query} onChange={(event) => this.updateQuery(event.target.value)}/>
 
-          <input className='search-filter' type='submit' value='Filter' />
+              <input className='search-filter' value='filter' type= 'submit'/>
+            </form>
 
-        </form>
+            <ul className= 'locations-list'>
+              {filteredMarkers.map((marker) => (
 
-        <ul className= 'locations-list'>
-          {filteredlocations.map((location) => (
-            <li key={location.id} className='location-list-item'>
-              <p>{location.title}</p>
-            </li>
-          ))}
-        </ul>
+                <li key={marker.title} tabIndex='0' className='location-list-item'
+                onClick = {() => {populateInfoWindow(marker, infowindow, map)}}
+                onMouseOver = {() => {addBounce(marker)}}
+                onMouseOut = {() => {removeBounce(marker)}}>
+                  <p>{marker.title}</p>
+                </li>
+              ))}
+            </ul>
 
-      </div>
+          </div>
+        </Menu>
+
     );
   }
 }
