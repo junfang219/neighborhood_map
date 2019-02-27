@@ -130,25 +130,38 @@ class App extends Component {
       let search = marker.title.split(' ').join('_');
       let out = this;
       const url = 'https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=d2eb1dfc3546c22991540f933a8e77b4&tags='+ search +'&format=json&nojsoncallback=1'
-      fetch(url).then(function(response) {
-        // handle errors
-        if ( response.ok ) {
+
+      fetch(url).then( function ( response ) {
           return response.json();
-        }
-        throw new Error( 'API FAILED, data cannot be loaded' )
-      }).then(function(data) {
+        } ).then(function( data ) {
         // get pic url from json
         let picArray = data.photos.photo.map(pic => {
           return 'https://farm'+pic.farm+'.staticflickr.com/'+pic.server+'/'+pic.id+'_'+pic.secret+'.jpg';
         })
         // pass the url to set the infowindow
         out.windowContent(marker, infowindow, map, picArray[0])
-      })
+      }).catch(
+        // Show on HTML to the user that the picture request has failed.
+        error => {
+          let errorMsg = 'Flickr API failed:' + error;
+          out.requestError(marker, infowindow, map, errorMsg);
+        }
+      )
   }
 
   windowContent = (marker, infowindow, map, flickrImg) => {
     infowindow.marker = marker
-    infowindow.setContent(`<div>${marker.title}</div><img alt=${marker.title} src=${flickrImg}></img>`)
+    infowindow.setContent(`<div tabIndex='0' >${marker.title}</div> <img tabIndex='0' alt= ${marker.title}  src=${flickrImg}></img>`)
+    infowindow.open(map, marker)
+    // Make sure the marker property is cleared if the infowindow is closed.
+    infowindow.addListener('closeclick', function() {
+      infowindow.marker = null
+    })
+  }
+
+  requestError = (marker, infowindow, map, errorMsg) => {
+    infowindow.marker = marker
+    infowindow.setContent(errorMsg)
     infowindow.open(map, marker)
     // Make sure the marker property is cleared if the infowindow is closed.
     infowindow.addListener('closeclick', function() {
@@ -161,8 +174,6 @@ class App extends Component {
         this.getFlickrPic(marker, infowindow, map);
       }
   }
-
-
 
 
   renderMap = () => {
@@ -201,14 +212,15 @@ class App extends Component {
 export default App;
 
 function loadMapAPI(url) {
-  var script = document.createElement('script');
-  script.async = true;
-  script.defer = true;
-  script.src = url;
-  script.onerror = () => {
-    alert('Google map can not be loaded!');
-  }
+    var script = document.createElement('script');
+    script.async = true;
+    script.defer = true;
+    script.src = url;
+    // Show user an error if the map request fails
+    script.onerror = () => {
+      alert('Google map can not be loaded!');
+    }
 
-  var x = document.getElementsByTagName('script')[0];
-  x.parentNode.insertBefore(script, x)
+    var x = document.getElementsByTagName('script')[0];
+    x.parentNode.insertBefore(script, x)
 }

@@ -28,7 +28,7 @@ class LocationList extends Component {
       filteredMarkers = mapMarkers
 
     }
-    //console.log(filteredList)
+
     return (
       // hambuger menu
         <Menu isOpen={ true }>
